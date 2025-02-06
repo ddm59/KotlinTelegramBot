@@ -15,6 +15,9 @@ fun main() {
     val dictionary: MutableList<Word> = loadDictionary()
 
     while (!isExit) {
+        var totalCount: Int
+        var learnedCount: Int
+        var percent: Int
 
         println(MENU_ITEMS.trimIndent())
 
@@ -26,7 +29,16 @@ fun main() {
             }
 
             2 -> {
-                println("Выбран пункт меню: 2 - Статистика")
+                totalCount = dictionary.size
+                println("Общее количество слов : $totalCount")
+
+                learnedCount = dictionary.filter { it.correctAnswersCount >= 3 }.count()
+                println("Количество выученных слов: $learnedCount")
+
+                percent = ((learnedCount.toDouble() / totalCount.toDouble()) * 100).toInt()
+                println("Процентное соотношение: $percent%")
+
+                println("Выучено $learnedCount из $totalCount слов | $percent%\n")
             }
 
             0 -> {
