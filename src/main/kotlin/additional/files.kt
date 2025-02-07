@@ -2,6 +2,8 @@ package additional
 
 import java.io.File
 
+const val PERCENT_MULTIPLIER = 100
+const val CORRECT_ANSWER_LIMIT = 3
 const val DICTIONARY_FILE_PATH = "words.txt"
 const val MENU_ITEMS = """
     Меню: 
@@ -15,6 +17,9 @@ fun main() {
     val dictionary: MutableList<Word> = loadDictionary()
 
     while (!isExit) {
+        var totalCount: Int
+        var learnedCount: Int
+        var percent: Int
 
         println(MENU_ITEMS.trimIndent())
 
@@ -26,7 +31,16 @@ fun main() {
             }
 
             2 -> {
-                println("Выбран пункт меню: 2 - Статистика")
+                totalCount = dictionary.size
+                println("Общее количество слов : $totalCount")
+
+                learnedCount = dictionary.filter { it.correctAnswersCount >= CORRECT_ANSWER_LIMIT }.count()
+                println("Количество выученных слов: $learnedCount")
+
+                percent = ((learnedCount.toDouble() / totalCount.toDouble()) * PERCENT_MULTIPLIER).toInt()
+                println("Процентное соотношение: $percent%")
+
+                println("Выучено $learnedCount из $totalCount слов | $percent%\n")
             }
 
             0 -> {
