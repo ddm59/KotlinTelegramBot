@@ -4,6 +4,7 @@ import java.io.File
 
 const val PERCENT_MULTIPLIER = 100
 const val CORRECT_ANSWER_LIMIT = 3
+const val NUMBER_OF_QUESTION_WORDS = 4
 const val DICTIONARY_FILE_PATH = "words.txt"
 const val MENU_ITEMS = """
     Меню: 
@@ -20,6 +21,10 @@ fun main() {
         var totalCount: Int
         var learnedCount: Int
         var percent: Int
+        var notLearnedList: List<Word>
+        var questionWords: List<Word>
+        var correctAnswer: Word
+        var userAnswer: Int = 0
 
         println(MENU_ITEMS.trimIndent())
 
@@ -27,7 +32,30 @@ fun main() {
 
         when (userInput) {
             1 -> {
-                println("Выбран пункт меню: 1 - Учить слова")
+                notLearnedList = dictionary.filter { it.correctAnswersCount < CORRECT_ANSWER_LIMIT }
+
+                if (notLearnedList.isNotEmpty()) {
+
+                    questionWords = notLearnedList.shuffled().take(4)
+                    correctAnswer = questionWords[0].copy()
+
+                    if (questionWords.size < NUMBER_OF_QUESTION_WORDS) {
+                        questionWords =                                   // Дополнение списка выученными словами
+                            questionWords.plus(dictionary.filter { it.correctAnswersCount > CORRECT_ANSWER_LIMIT }
+                                .shuffled().take(NUMBER_OF_QUESTION_WORDS - questionWords.size))
+                    }
+
+                    println(correctAnswer.word)
+
+                    questionWords.shuffled().forEachIndexed { index, word ->  //Вывод списка ответов
+                        println("  ${index + 1} - ${word.translate}")
+                    }
+
+                    userAnswer = readln().toIntOrNull() ?: 0  // Ответ пользователя
+
+                } else {
+                    println("Все слова в словаре выучены")
+                }
             }
 
             2 -> {
@@ -65,3 +93,4 @@ fun loadDictionary(): MutableList<Word> {
     }
     return dictionary
 }
+
