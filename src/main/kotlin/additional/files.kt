@@ -36,8 +36,8 @@ fun main() {
 
                 if (notLearnedList.isNotEmpty()) {
 
-                    questionWords = notLearnedList.shuffled().take(4)
-                    correctAnswer = questionWords[0].copy()
+                    questionWords = notLearnedList.shuffled().take(NUMBER_OF_QUESTION_WORDS)
+                    correctAnswer = questionWords.random().copy()
 
                     if (questionWords.size < NUMBER_OF_QUESTION_WORDS) {
                         questionWords =                                   // Дополнение списка выученными словами
