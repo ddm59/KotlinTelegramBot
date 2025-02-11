@@ -3,7 +3,7 @@ dog|собака|0
 cat|кошка|4
 autumn|осень|4
 woman|женщина|5
-family|семья|0
+family|семья|1
 head|голова|5
 heart|сердце|7
 care|забота|8

@@ -56,19 +56,17 @@ fun main() {
 
                     correctAnswerId = questionWords.indexOf(correctAnswer)
                     userAnswerInput = readln().toIntOrNull() ?: 0  // Ответ пользователя
-                    questionWords.forEachIndexed() { index, word -> println("$index - ${word.word}") }
 
                     if (userAnswerInput == 0) {
                         continue
                     } else {
-                        println(userAnswerInput)
-                        println(correctAnswerId)
+
                         if (--userAnswerInput == correctAnswerId) {
-                            println("Правильно!")
+                            println("Правильно!\n")
                             questionWords[correctAnswerId].correctAnswersCount++
                             saveDictionary(dictionary)
                         } else {
-                            println("Неправильно! ${correctAnswer.word} – это ${correctAnswer.translate}")
+                            println("Неправильно! ${correctAnswer.word} – это ${correctAnswer.translate}\n")
                         }
                     }
 
