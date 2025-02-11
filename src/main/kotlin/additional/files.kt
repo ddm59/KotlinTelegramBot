@@ -12,10 +12,12 @@ const val MENU_ITEMS = """
     2 – Статистика
     0 – Выход
 """
+const val EXIT_ITEM = """  ------------
+  0 - Меню"""
 
 fun main() {
     var isExit: Boolean = false
-    val dictionary: MutableList<Word> = loadDictionary()
+    var dictionary: MutableList<Word>
 
     while (!isExit) {
         var totalCount: Int
@@ -24,8 +26,9 @@ fun main() {
         var notLearnedList: List<Word>
         var questionWords: List<Word>
         var correctAnswer: Word
-        var userAnswer: Int = 0
-
+        var userAnswerInput: Int = 0
+        val correctAnswerId: Int
+        dictionary = loadDictionary()
         println(MENU_ITEMS.trimIndent())
 
         val userInput = readln().toIntOrNull() ?: 0
@@ -37,7 +40,7 @@ fun main() {
                 if (notLearnedList.isNotEmpty()) {
 
                     questionWords = notLearnedList.shuffled().take(NUMBER_OF_QUESTION_WORDS)
-                    correctAnswer = questionWords.random().copy()
+                    correctAnswer = questionWords.random()
 
                     if (questionWords.size < NUMBER_OF_QUESTION_WORDS) {
                         questionWords =                                   // Дополнение списка выученными словами
@@ -46,15 +49,32 @@ fun main() {
                     }
 
                     println(correctAnswer.word)
-
-                    questionWords.shuffled().forEachIndexed { index, word ->  //Вывод списка ответов
+                    questionWords.forEachIndexed { index, word ->  //Вывод списка ответов
                         println("  ${index + 1} - ${word.translate}")
                     }
+                    println(EXIT_ITEM)
 
-                    userAnswer = readln().toIntOrNull() ?: 0  // Ответ пользователя
+                    correctAnswerId = questionWords.indexOf(correctAnswer)
+                    userAnswerInput = readln().toIntOrNull() ?: 0  // Ответ пользователя
+                    questionWords.forEachIndexed() { index, word -> println("$index - ${word.word}") }
+
+                    if (userAnswerInput == 0) {
+                        continue
+                    } else {
+                        println(userAnswerInput)
+                        println(correctAnswerId)
+                        if (--userAnswerInput == correctAnswerId) {
+                            println("Правильно!")
+                            questionWords[correctAnswerId].correctAnswersCount++
+                            saveDictionary(dictionary)
+                        } else {
+                            println("Неправильно! ${correctAnswer.word} – это ${correctAnswer.translate}")
+                        }
+                    }
 
                 } else {
                     println("Все слова в словаре выучены")
+
                 }
             }
 
@@ -67,7 +87,6 @@ fun main() {
 
                 percent = ((learnedCount.toDouble() / totalCount.toDouble()) * PERCENT_MULTIPLIER).toInt()
                 println("Процентное соотношение: $percent%")
-
                 println("Выучено $learnedCount из $totalCount слов | $percent%\n")
             }
 
@@ -92,5 +111,11 @@ fun loadDictionary(): MutableList<Word> {
         dictionary.add(word)
     }
     return dictionary
+}
+
+fun saveDictionary(dictionary: MutableList<Word>) {
+    val wordsFile: File = File(DICTIONARY_FILE_PATH)
+    val text = dictionary.joinToString(separator = "\n") { "${it.word}|${it.translate}|${it.correctAnswersCount}" }
+    wordsFile.writeText(text)
 }
 
