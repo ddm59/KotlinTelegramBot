@@ -16,31 +16,21 @@ const val EXIT_ITEM = """  ------------
   0 - Меню"""
 
 fun main() {
-    var isExit: Boolean = false
-    var dictionary: MutableList<Word>
 
-    while (!isExit) {
-        var totalCount: Int
-        var learnedCount: Int
-        var percent: Int
-        var notLearnedList: List<Word>
-        var questionWords: List<Word>
-        var correctAnswer: Word
-        var userAnswerInput: Int = 0
-        val correctAnswerId: Int
-        dictionary = loadDictionary()
+    while (true) {
+        val dictionary = loadDictionary()
+
         println(MENU_ITEMS.trimIndent())
-
         val userInput = readln().toIntOrNull() ?: 0
 
         when (userInput) {
             1 -> {
-                notLearnedList = dictionary.filter { it.correctAnswersCount < CORRECT_ANSWER_LIMIT }
+                val notLearnedList = dictionary.filter { it.correctAnswersCount < CORRECT_ANSWER_LIMIT }
 
                 if (notLearnedList.isNotEmpty()) {
 
-                    questionWords = notLearnedList.shuffled().take(NUMBER_OF_QUESTION_WORDS)
-                    correctAnswer = questionWords.random()
+                    var questionWords = notLearnedList.shuffled().take(NUMBER_OF_QUESTION_WORDS)
+                    val correctAnswer = questionWords.random()
 
                     if (questionWords.size < NUMBER_OF_QUESTION_WORDS) {
                         questionWords =                                   // Дополнение списка выученными словами
@@ -54,13 +44,10 @@ fun main() {
                     }
                     println(EXIT_ITEM)
 
-                    correctAnswerId = questionWords.indexOf(correctAnswer)
-                    userAnswerInput = readln().toIntOrNull() ?: 0  // Ответ пользователя
+                    val correctAnswerId = questionWords.indexOf(correctAnswer)
+                    var userAnswerInput = readln().toIntOrNull() ?: 0  // Ответ пользователя
 
-                    if (userAnswerInput == 0) {
-                        continue
-                    } else {
-
+                    if (userAnswerInput != 0) {
                         if (--userAnswerInput == correctAnswerId) {
                             println("Правильно!\n")
                             questionWords[correctAnswerId].correctAnswersCount++
@@ -69,7 +56,6 @@ fun main() {
                             println("Неправильно! ${correctAnswer.word} – это ${correctAnswer.translate}\n")
                         }
                     }
-
                 } else {
                     println("Все слова в словаре выучены")
 
@@ -77,20 +63,20 @@ fun main() {
             }
 
             2 -> {
-                totalCount = dictionary.size
+                val totalCount = dictionary.size
                 println("Общее количество слов : $totalCount")
 
-                learnedCount = dictionary.filter { it.correctAnswersCount >= CORRECT_ANSWER_LIMIT }.count()
+                val learnedCount = dictionary.filter { it.correctAnswersCount >= CORRECT_ANSWER_LIMIT }.count()
                 println("Количество выученных слов: $learnedCount")
 
-                percent = ((learnedCount.toDouble() / totalCount.toDouble()) * PERCENT_MULTIPLIER).toInt()
+                val percent = ((learnedCount.toDouble() / totalCount.toDouble()) * PERCENT_MULTIPLIER).toInt()
                 println("Процентное соотношение: $percent%")
                 println("Выучено $learnedCount из $totalCount слов | $percent%\n")
             }
 
             0 -> {
                 println("Выход из меню")
-                isExit = true
+                break
             }
 
             else -> println("Введите число 1, 2 или 0")
@@ -111,7 +97,7 @@ fun loadDictionary(): MutableList<Word> {
     return dictionary
 }
 
-fun saveDictionary(dictionary: MutableList<Word>) {
+fun saveDictionary(dictionary: List<Word>) {
     val wordsFile: File = File(DICTIONARY_FILE_PATH)
     val text = dictionary.joinToString(separator = "\n") { "${it.word}|${it.translate}|${it.correctAnswersCount}" }
     wordsFile.writeText(text)
