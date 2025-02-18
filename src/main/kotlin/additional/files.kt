@@ -22,7 +22,14 @@ fun Question.asConsoleString(): String {
 }
 
 fun main() {
-    val trainer = LearnWordsTrainer()
+
+    val trainer = try {
+        LearnWordsTrainer(3, 4)
+    } catch (e: Exception) {
+        println("Невозможно загрузить словарь")
+        return
+    }
+
     while (true) {
         println(MENU_ITEMS.trimIndent())
 
@@ -52,10 +59,12 @@ fun main() {
                 val statistics = trainer.getStatistics()
                 println("Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent}%\n")
             }
+
             0 -> {
                 println("Выход из меню")
                 break
             }
+
             else -> println("Введите число 1, 2 или 0")
         }
     }
