@@ -62,7 +62,7 @@ class LearnWordsTrainer {
         } ?: false
     }
 
-    private fun loadDictionary(): MutableList<Word> {
+    private fun loadDictionary(): List<Word> {
         val wordsFile: File = File(DICTIONARY_FILE_PATH)
         val dictionary: MutableList<Word> = mutableListOf()
         val lines: List<String> = wordsFile.readLines()
@@ -71,7 +71,7 @@ class LearnWordsTrainer {
             val word = Word(word = line[0], translate = line[1], correctAnswersCount = line[2].toIntOrNull() ?: 0)
             dictionary.add(word)
         }
-        return dictionary
+        return dictionary.toList()
     }
 
     private fun saveDictionary(dictionary: List<Word>) {
