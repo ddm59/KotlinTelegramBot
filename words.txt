@@ -1,9 +1,9 @@
-hello|привет|1
+hello|привет|3
 dog|собака|3
-cat|кошка|2
-autumn|осень|2
-woman|женщина|3
-family|семья|3
-head|голова|5
-heart|сердце|7
-care|забота|8
+cat|кошка|3
+autumn|осень|3
+woman|женщина|0
+family|семья|0
+head|голова|0
+heart|сердце|0
+care|забота|0d

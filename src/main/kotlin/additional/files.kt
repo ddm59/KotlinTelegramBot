@@ -2,7 +2,8 @@ package additional
 
 import java.io.File
 
-
+const val CORRECT_ANSWER_LIMIT = 3
+const val NUMBER_OF_QUESTION_WORDS = 4
 const val DICTIONARY_FILE_PATH = "words.txt"
 const val MENU_ITEMS = """
     Меню: 
@@ -22,7 +23,14 @@ fun Question.asConsoleString(): String {
 }
 
 fun main() {
-    val trainer = LearnWordsTrainer()
+
+    val trainer = try {
+        LearnWordsTrainer(CORRECT_ANSWER_LIMIT, NUMBER_OF_QUESTION_WORDS)
+    } catch (e: Exception) {
+        println("Невозможно загрузить словарь")
+        return
+    }
+
     while (true) {
         println(MENU_ITEMS.trimIndent())
 
@@ -52,10 +60,12 @@ fun main() {
                 val statistics = trainer.getStatistics()
                 println("Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent}%\n")
             }
+
             0 -> {
                 println("Выход из меню")
                 break
             }
+
             else -> println("Введите число 1, 2 или 0")
         }
     }
