@@ -2,7 +2,8 @@ package additional
 
 import java.io.File
 
-
+const val CORRECT_ANSWER_LIMIT = 3
+const val NUMBER_OF_QUESTION_WORDS = 4
 const val DICTIONARY_FILE_PATH = "words.txt"
 const val MENU_ITEMS = """
     Меню: 
@@ -24,7 +25,7 @@ fun Question.asConsoleString(): String {
 fun main() {
 
     val trainer = try {
-        LearnWordsTrainer(3, 4)
+        LearnWordsTrainer(CORRECT_ANSWER_LIMIT, NUMBER_OF_QUESTION_WORDS)
     } catch (e: Exception) {
         println("Невозможно загрузить словарь")
         return
