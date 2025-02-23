@@ -1,7 +1,5 @@
 package additional
 
-import java.io.File
-
 const val CORRECT_ANSWER_LIMIT = 3
 const val NUMBER_OF_QUESTION_WORDS = 4
 const val DICTIONARY_FILE_PATH = "words.txt"
