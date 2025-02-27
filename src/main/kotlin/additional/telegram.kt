@@ -5,25 +5,26 @@ import java.net.http.HttpRequest
 import java.net.URI
 import java.net.http.HttpResponse
 
-const val SYMBOL_COUNT = 11
-const val INDEX_NOT_FOUND = -1
 const val INDEX_INCREASE = 1
+const val UPDATE_ID_REGEX_STRING = "\"update_id\":(.+?),"
+const val MEASSAGE_REGEX_STRING = "\"text\":\"(.+?)\""
 
 fun main(args: Array<String>) {
-
+    val updateIdRegex = UPDATE_ID_REGEX_STRING.toRegex()
+    val messageTextRegex = MEASSAGE_REGEX_STRING.toRegex()
     val botToken = args[0]
     var updateId = 0
 
     while (true) {
         Thread.sleep(2000)
         val updates: String = getUpdates(botToken, updateId)
-        println(updates)
-        val startUpdateId = updates.lastIndexOf("update_id")
-        val endUpdateId = updates.lastIndexOf(",\n\"message\"")
 
-        if (startUpdateId == INDEX_NOT_FOUND || endUpdateId == INDEX_NOT_FOUND) continue
-        val updateIdString = updates.substring(startUpdateId + SYMBOL_COUNT, endUpdateId)
-        updateId = updateIdString.toInt() + INDEX_INCREASE
+        val messageMatchResult: MatchResult = messageTextRegex.find(updates) ?: continue
+        println(messageMatchResult.groupValues[1])
+
+        val idMatchResult: MatchResult = updateIdRegex.find(updates) ?: continue
+        val updateIdString = idMatchResult.groupValues[1].toIntOrNull()?:0
+        updateId = updateIdString + INDEX_INCREASE
     }
 }
 
