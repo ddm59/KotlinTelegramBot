@@ -16,7 +16,7 @@ fun main(args: Array<String>) {
     while (true) {
         Thread.sleep(2000)
         val telegramBotService = TelegramBotService(botToken)
-        val updates: String = telegramBotService.getUpdates(botToken, updateId)
+        val updates: String = telegramBotService.getUpdates(updateId)
 
         val messageMatchResult: MatchResult = messageTextRegex.find(updates) ?: continue
 
@@ -25,10 +25,10 @@ fun main(args: Array<String>) {
         updateId = updateIdString + INDEX_INCREASE
 
         val chatIdMatchResult: MatchResult = chatIdRegex.find(updates) ?: continue
-        val chatId = chatIdMatchResult.groupValues[1].toIntOrNull()?:0
+        val chatId = chatIdMatchResult.groupValues[1].toLongOrNull()?:0
 
         if(messageMatchResult.groupValues[1].lowercase() == "hello") {
-            val response =  telegramBotService.sendMessage(chatId, messageMatchResult.groupValues[1])
+            telegramBotService.sendMessage(chatId, messageMatchResult.groupValues[1])
         }
     }
 }
