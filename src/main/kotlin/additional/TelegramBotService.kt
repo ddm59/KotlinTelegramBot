@@ -7,7 +7,8 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
 
-
+const val STATISTIC_BUTTON = "statistics_clicked"
+const val WORDS_LEARN_BUTTON = "learn_words_clicked"
 const val TG_BOT_URL = "https://api.telegram.org/bot"
 
 class TelegramBotService(
@@ -42,8 +43,8 @@ class TelegramBotService(
         "reply_markup": {
             "inline_keyboard": [
                 [
-                    {"text": "Изучить слова", "callback_data": "learn_words_clicked"},
-                    {"text": "Статистика", "callback_data": "statistics_clicked"}
+                    {"text": "Изучить слова", "callback_data": $WORDS_LEARN_BUTTON},
+                    {"text": "Статистика", "callback_data": $STATISTIC_BUTTON}
                 ]
             ]
         }
