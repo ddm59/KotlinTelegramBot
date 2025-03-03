@@ -5,6 +5,7 @@ import java.net.URLEncoder
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 
 const val STATISTIC_BUTTON = "statistics_clicked"
@@ -14,7 +15,7 @@ const val TG_BOT_URL = "https://api.telegram.org/bot"
 class TelegramBotService(
     private val botToken: String,
 ) {
-    private val  client: OkHttpClient = OkHttpClient()
+    private val client: OkHttpClient = OkHttpClient()
 
     fun getUpdates(updateId: Int): String {
         val urlGetUpdates = "$TG_BOT_URL$botToken/getUpdates?offset=$updateId"
@@ -43,14 +44,14 @@ class TelegramBotService(
         "reply_markup": {
             "inline_keyboard": [
                 [
-                    {"text": "Изучить слова", "callback_data": $WORDS_LEARN_BUTTON},
-                    {"text": "Статистика", "callback_data": $STATISTIC_BUTTON}
+                    {"text": "Изучить слова", "callback_data": "$WORDS_LEARN_BUTTON"},
+                    {"text": "Статистика", "callback_data": "$STATISTIC_BUTTON"}
                 ]
             ]
         }
     }""".trimIndent()
 
-        val requestBody = RequestBody.create("application/json".toMediaType(), jsonBody)
+        val requestBody = jsonBody.toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
             .url(url)
