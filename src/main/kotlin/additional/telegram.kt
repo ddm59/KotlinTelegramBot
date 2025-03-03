@@ -15,7 +15,7 @@ fun main(args: Array<String>) {
     val botToken = args[0]
     var lastUpdateId = 0
 
-    val trainer =  try {
+    val trainer = try {
         LearnWordsTrainer(CORRECT_ANSWER_LIMIT, NUMBER_OF_QUESTION_WORDS)
     } catch (e: Exception) {
         println("Невозможно загрузить словарь")
@@ -38,7 +38,11 @@ fun main(args: Array<String>) {
             telegramBotService.sendMenu(chatId)
         }
         if (data?.lowercase() == "statistics_clicked" && chatId != null) {
-            telegramBotService.sendMessage(chatId, "Выучено 10 из 10 слов | 100%")
+            val statistics = trainer.getStatistics()
+            telegramBotService.sendMessage(
+                chatId,
+                "Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent}%\n"
+            )
         }
     }
 }
