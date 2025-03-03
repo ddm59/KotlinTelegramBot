@@ -4,6 +4,11 @@ import java.io.File
 
 const val PERCENT_MULTIPLIER = 100
 
+data class Word(
+    val word: String,
+    val translate: String,
+    var correctAnswersCount: Int = 0,
+)
 data class Statistics(
     val totalCount: Int,
     val learnedCount: Int,
