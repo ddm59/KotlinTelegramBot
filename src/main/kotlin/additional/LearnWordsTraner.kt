@@ -70,14 +70,6 @@ class LearnWordsTrainer(private val correctAnswerLimit: Int = 3, private val num
         } ?: false
     }
 
-    fun checkNextQuestionAndSend(
-        trainer: LearnWordsTrainer,
-        telegramBotService: TelegramBotService,
-        chatId: Int
-    ){
-
-    }
-
     private fun loadDictionary(): List<Word> {
         try {
             val wordsFile: File = File(DICTIONARY_FILE_PATH)
