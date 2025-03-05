@@ -21,29 +21,44 @@ fun main(args: Array<String>) {
         println("Невозможно загрузить словарь")
         return
     }
+    val telegramBotService = TelegramBotService(botToken)
 
     while (true) {
         Thread.sleep(2000)
-        val telegramBotService = TelegramBotService(botToken)
+
         val updates: String = telegramBotService.getUpdates(lastUpdateId)
 
         val updateId = updateIdRegex.find(updates)?.groups?.get(1)?.value?.toInt() ?: continue
         lastUpdateId = updateId + INDEX_INCREASE
 
         val message = messageTextRegex.find(updates)?.groups?.get(1)?.value
-        val chatId = chatIdRegex.find(updates)?.groups?.get(1)?.value?.toLong()
+        val chatId = chatIdRegex.find(updates)?.groups?.get(1)?.value?.toLongOrNull() ?: continue
         val data = dataRegex.find(updates)?.groups?.get(1)?.value
 
-        if (message?.lowercase() == "/start" && chatId != null) {
+        if (message?.lowercase() == "/start") {
             telegramBotService.sendMenu(chatId)
         }
-        if (data?.lowercase() == "statistics_clicked" && chatId != null) {
+        if (data?.lowercase() == WORDS_LEARN_BUTTON) {
+            checkNextQuestionAndSend(trainer, telegramBotService, chatId)
+        }
+
+        if (data?.lowercase() == STATISTIC_BUTTON ) {
             val statistics = trainer.getStatistics()
             telegramBotService.sendMessage(
                 chatId,
                 "Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent}%\n"
             )
         }
+    }
+
+
+}
+private fun checkNextQuestionAndSend(trainer: LearnWordsTrainer, telegramBotService: TelegramBotService, chatId: Long) {
+    val nextQuestion = trainer.getNextQuestion()
+    if (nextQuestion == null) {
+        telegramBotService.sendMessage(chatId, "Вы выучили все слова в базе")
+    } else {
+        telegramBotService.sendQuestion(chatId, nextQuestion)
     }
 }
 

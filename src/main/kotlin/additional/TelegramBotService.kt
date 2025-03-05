@@ -4,13 +4,13 @@ import okhttp3.MediaType.Companion.toMediaType
 import java.net.URLEncoder
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 
 const val STATISTIC_BUTTON = "statistics_clicked"
 const val WORDS_LEARN_BUTTON = "learn_words_clicked"
-const val TG_BOT_URL = "https://api.telegram.org/bot"
+private const val TG_BOT_URL = "https://api.telegram.org/bot"
+const val CALLBACK_DATA_ANSWER_PREFIX = "answer_"
 
 class TelegramBotService(
     private val botToken: String,
@@ -30,10 +30,7 @@ class TelegramBotService(
         val encodedMessage = URLEncoder.encode(message, Charsets.UTF_8.toString())
         val url = "$TG_BOT_URL$botToken/sendMessage?chat_id=$chatId&text=$encodedMessage"
 
-        val request = Request.Builder().url(url).build()
-        client.newCall(request).execute().use { response: Response ->
-            return response.body?.string() ?: ""
-        }
+        return sendRequest(url)
     }
 
     fun sendMenu(chatId: Long): String {
@@ -63,4 +60,59 @@ class TelegramBotService(
             return response.body?.string() ?: ""
         }
     }
+
+    fun sendQuestion(chatId: Long, question: Question): String {
+        val urlSendMessage = "$TG_BOT_URL$botToken/sendMessage"
+        val keyboardButtons = question.variants.mapIndexed { index, word ->
+            mapOf(
+                "translation" to word.translate,
+                "callback_data" to "$CALLBACK_DATA_ANSWER_PREFIX${index + 1}"
+            )
+        }
+
+        val sendQuestionBody = """
+            {
+                "chat_id": $chatId,
+                "text": "${question.correctAnswer.word}",
+                "reply_markup": 
+                {
+                    "inline_keyboard": 
+                    [
+                        ${
+            keyboardButtons.chunked(2).joinToString(",")
+            { row ->
+                row.joinToString(",", prefix = "[", postfix = "]")
+                { button ->
+                    "{\"text\": \"${button["translation"]}\", \"callback_data\": \"${button["callback_data"]}\"}"
+                }
+            }
+        }
+                    ]
+                }
+            }
+        """.trimIndent()
+
+        return sendRequest(urlSendMessage, sendQuestionBody)
+    }
+
+    private fun sendRequest(url: String, body: String? = null): String {
+        if (body != null) {
+            val requestBody = body.toRequestBody("application/json".toMediaType())
+            val request = Request.Builder()
+                .url(url)
+                .post(requestBody)
+                .header("Content-Type", "application/json")
+                .build()
+
+            client.newCall(request).execute().use { response: Response ->
+                return response.body?.string() ?: ""
+            }
+        }
+        val request = Request.Builder().url(url).build()
+        client.newCall(request).execute().use { response: Response ->
+            return response.body?.string() ?: ""
+        }
+
+    }
+
 }
