@@ -66,7 +66,7 @@ class TelegramBotService(
         val keyboardButtons = question.variants.mapIndexed { index, word ->
             mapOf(
                 "translation" to word.translate,
-                "callback_data" to "$CALLBACK_DATA_ANSWER_PREFIX${index + 1}"
+                "callback_data" to "$CALLBACK_DATA_ANSWER_PREFIX${index}"
             )
         }
 

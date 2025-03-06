@@ -7,6 +7,7 @@ const val CHAT_ID_REGEX_STRING = "\"chat\":\\{\"id\":(\\d+)"
 const val DATA_ID_REGEX_STRING = "\"data\":\"(.+?)\""
 
 
+
 fun main(args: Array<String>) {
     val updateIdRegex = UPDATE_ID_REGEX_STRING.toRegex()
     val messageTextRegex = MEASSAGE_REGEX_STRING.toRegex()
@@ -48,6 +49,24 @@ fun main(args: Array<String>) {
                 chatId,
                 "Выучено ${statistics.learnedCount} из ${statistics.totalCount} слов | ${statistics.percent}%\n"
             )
+        }
+
+        if (data?.lowercase()?.startsWith(CALLBACK_DATA_ANSWER_PREFIX) == true) {
+            val userAnswerIndex = data.substringAfter("_").toInt()
+            if (trainer.checkAnswer(userAnswerIndex)) {
+                telegramBotService.sendMessage(chatId, "Правильно!")
+                checkNextQuestionAndSend(trainer, telegramBotService, chatId)
+            } else {
+                val questionOriginal = trainer.question?.correctAnswer?.word
+                val correctAnswer = trainer.question?.correctAnswer?.translate
+                telegramBotService.sendMessage(
+                    chatId,
+                    "Неправильно! " +
+                            "$questionOriginal это $correctAnswer.",
+
+                    )
+                checkNextQuestionAndSend(trainer, telegramBotService, chatId)
+            }
         }
     }
 
