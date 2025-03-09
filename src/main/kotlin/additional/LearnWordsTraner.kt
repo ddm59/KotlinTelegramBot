@@ -22,7 +22,7 @@ data class Question(
 
 class LearnWordsTrainer(private val correctAnswerLimit: Int = 3, private val numberOfQuestionWords: Int = 4) {
 
-    private var question: Question? = null
+    var question: Question? = null
     private val dictionary = loadDictionary()
 
 
@@ -40,7 +40,7 @@ class LearnWordsTrainer(private val correctAnswerLimit: Int = 3, private val num
         if (notLearnedList.isEmpty()) {
             return null
         }
-        correctAnswer = notLearnedList.random()
+
 
         if (notLearnedList.size < numberOfQuestionWords) {
             val learnedList = dictionary.filter { it.correctAnswersCount > correctAnswerLimit }.shuffled()
@@ -49,6 +49,7 @@ class LearnWordsTrainer(private val correctAnswerLimit: Int = 3, private val num
         } else {
             questionWords = notLearnedList.shuffled().take(numberOfQuestionWords)
         }
+        correctAnswer = questionWords.random()
 
         question = Question(
             variants = questionWords,
