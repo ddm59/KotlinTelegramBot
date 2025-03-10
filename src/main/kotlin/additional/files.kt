@@ -1,8 +1,8 @@
 package additional
 
-const val CORRECT_ANSWER_LIMIT = 3
-const val NUMBER_OF_QUESTION_WORDS = 4
-const val DICTIONARY_FILE_PATH = "words.txt"
+const val CORRECT_ANSWER_LIMIT: Int = 3
+const val NUMBER_OF_QUESTION_WORDS: Int = 4
+
 const val MENU_ITEMS = """
     Меню: 
     1 – Учить слова
@@ -23,7 +23,7 @@ fun Question.asConsoleString(): String {
 fun main() {
 
     val trainer = try {
-        LearnWordsTrainer(CORRECT_ANSWER_LIMIT, NUMBER_OF_QUESTION_WORDS)
+        LearnWordsTrainer(correctAnswerLimit = CORRECT_ANSWER_LIMIT, numberOfQuestionWords = NUMBER_OF_QUESTION_WORDS)
     } catch (e: Exception) {
         println("Невозможно загрузить словарь")
         return
