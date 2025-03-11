@@ -9,6 +9,7 @@ data class Word(
     val translate: String,
     var correctAnswersCount: Int = 0,
 )
+
 data class Statistics(
     val totalCount: Int,
     val learnedCount: Int,
@@ -20,9 +21,14 @@ data class Question(
     val correctAnswer: Word,
 )
 
-class LearnWordsTrainer(private val correctAnswerLimit: Int = 3, private val numberOfQuestionWords: Int = 4) {
+class LearnWordsTrainer(
+    private val fileName: String = "words.txt",
+    private val correctAnswerLimit: Int = 3,
+    private val numberOfQuestionWords: Int = 4
+) {
 
     var question: Question? = null
+        private set
     private val dictionary = loadDictionary()
 
 
@@ -34,23 +40,19 @@ class LearnWordsTrainer(private val correctAnswerLimit: Int = 3, private val num
     }
 
     fun getNextQuestion(): Question? {
-        val correctAnswer: Word
-        var questionWords: List<Word>
+
         val notLearnedList = dictionary.filter { it.correctAnswersCount < correctAnswerLimit }
-        if (notLearnedList.isEmpty()) {
-            return null
-        }
+        if (notLearnedList.isEmpty()) return null
 
-
-        if (notLearnedList.size < numberOfQuestionWords) {
+        val questionWords = if (notLearnedList.size < numberOfQuestionWords) {
             val learnedList = dictionary.filter { it.correctAnswersCount > correctAnswerLimit }.shuffled()
-            questionWords = notLearnedList.shuffled().take(numberOfQuestionWords) +
+            notLearnedList.shuffled().take(numberOfQuestionWords) +
                     learnedList.take(numberOfQuestionWords - notLearnedList.size)
         } else {
-            questionWords = notLearnedList.shuffled().take(numberOfQuestionWords)
-        }
-        correctAnswer = questionWords.random()
+            notLearnedList.shuffled().take(numberOfQuestionWords)
+        }.shuffled()
 
+        val correctAnswer = questionWords.random()
         question = Question(
             variants = questionWords,
             correctAnswer = correctAnswer,
@@ -63,7 +65,7 @@ class LearnWordsTrainer(private val correctAnswerLimit: Int = 3, private val num
             val correctAnswerId = it.variants.indexOf(it.correctAnswer)
             if (correctAnswerId == userAnswerId) {
                 it.correctAnswer.correctAnswersCount++
-                saveDictionary(dictionary)
+                saveDictionary()
                 true
             } else {
                 false
@@ -73,7 +75,10 @@ class LearnWordsTrainer(private val correctAnswerLimit: Int = 3, private val num
 
     private fun loadDictionary(): List<Word> {
         try {
-            val wordsFile: File = File(DICTIONARY_FILE_PATH)
+            val wordsFile = File(fileName)
+            if (!wordsFile.exists()) {
+                File("words.txt").copyTo(wordsFile)
+            }
             val dictionary: MutableList<Word> = mutableListOf()
             val lines: List<String> = wordsFile.readLines()
             for (line in lines) {
@@ -87,9 +92,15 @@ class LearnWordsTrainer(private val correctAnswerLimit: Int = 3, private val num
         }
     }
 
-    private fun saveDictionary(dictionary: List<Word>) {
-        val wordsFile: File = File(DICTIONARY_FILE_PATH)
+    private fun saveDictionary() {
+        val wordsFile: File = File(fileName)
         val text = dictionary.joinToString(separator = "\n") { "${it.word}|${it.translate}|${it.correctAnswersCount}" }
         wordsFile.writeText(text)
     }
+
+    fun resetProgress() {
+        dictionary.forEach { it.correctAnswersCount = 0 }
+        saveDictionary()
+    }
 }
+
