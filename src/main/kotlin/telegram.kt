@@ -1,5 +1,3 @@
-package additional
-
 import kotlinx.serialization.json.Json
 
 const val INDEX_INCREASE = 1
@@ -14,9 +12,9 @@ fun main(args: Array<String>) {
     val telegramBotService = TelegramBotService(botToken)
 
     while (true) {
-        Thread.sleep(2000)
-        val responseString: String = telegramBotService.getUpdates(lastUpdateId)
-        val response: Response = json.decodeFromString(responseString)
+        Thread.sleep(3000)
+        val responseString: String? = telegramBotService.getUpdates(lastUpdateId)
+        val response: Response = json.decodeFromString(responseString?:"{\"result\":[]}")
         println(response.toString())
         if (response.result.isNullOrEmpty()) continue
         val sortUpdates = response.result.sortedBy { it.updateId }
@@ -58,7 +56,7 @@ fun handleUpdate(
         }
 
         data?.startsWith(CALLBACK_DATA_ANSWER_PREFIX) == true -> {
-            val index = data.substringAfter(CALLBACK_DATA_ANSWER_PREFIX).toInt()
+            val index = data?.substringAfter(CALLBACK_DATA_ANSWER_PREFIX)?.toInt()
             if (trainer.checkAnswer(index)) {
                 telegramBotService.sendMessage(json, chatId, "Правильно!")
             } else {

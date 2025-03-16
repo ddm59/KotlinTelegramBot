@@ -1,5 +1,3 @@
-package additional
-
 import java.io.File
 
 const val PERCENT_MULTIPLIER = 100

@@ -1,5 +1,3 @@
-package additional
-
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.Json
@@ -67,12 +65,17 @@ class TelegramBotService(private val botToken: String) {
     private val apiUrl = "$TG_BOT_URL${this.botToken}"
     private val client: HttpClient = HttpClient.newBuilder().build()
 
-    fun getUpdates(updateId: Long): String {
+    fun getUpdates(updateId: Long): String? {
         val urlGetUpdates = "$apiUrl/getUpdates?offset=$updateId"
-        val requestGetUpdates: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
-        val responseGetUpdates: HttpResponse<String> =
-            client.send(requestGetUpdates, HttpResponse.BodyHandlers.ofString())
-        return responseGetUpdates.body()
+        try{
+            val requestGetUpdates: HttpRequest = HttpRequest.newBuilder().uri(URI.create(urlGetUpdates)).build()
+            val responseGetUpdates: HttpResponse<String> =
+                client.send(requestGetUpdates, HttpResponse.BodyHandlers.ofString())
+            return responseGetUpdates.body()
+        }catch (e: Exception){
+            println(e.message)
+        }
+        return null
     }
 
     fun sendMessage(json: Json, chatId: Long?, message: String): String? {
@@ -85,12 +88,17 @@ class TelegramBotService(private val botToken: String) {
 
         val requestBodyString = json.encodeToString(requestBody)
 
-        val requestSendMessage: HttpRequest =
-            HttpRequest.newBuilder().uri(URI.create(urlSendMessage)).header("Content-type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBodyString)).build()
-        val responseSendMessage: HttpResponse<String> =
-            client.send(requestSendMessage, HttpResponse.BodyHandlers.ofString())
-        return responseSendMessage.body()
+        try {
+            val requestSendMessage: HttpRequest =
+                HttpRequest.newBuilder().uri(URI.create(urlSendMessage)).header("Content-type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBodyString)).build()
+            val responseSendMessage: HttpResponse<String> =
+                client.send(requestSendMessage, HttpResponse.BodyHandlers.ofString())
+            return responseSendMessage.body()
+        }catch (e: Exception){
+            println(e.message)
+        }
+        return null
     }
 
     fun sendMenu(json: Json, chatId: Long): String? {
@@ -110,12 +118,17 @@ class TelegramBotService(private val botToken: String) {
 
         val requestBodyString = json.encodeToString(requestBody)
 
-        val requestSendMessage: HttpRequest =
-            HttpRequest.newBuilder().uri(URI.create(urlSendMessage)).header("Content-type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBodyString)).build()
-        val responseSendMessage: HttpResponse<String> =
-            client.send(requestSendMessage, HttpResponse.BodyHandlers.ofString())
-        return responseSendMessage.body()
+       try {
+           val requestSendMessage: HttpRequest =
+               HttpRequest.newBuilder().uri(URI.create(urlSendMessage)).header("Content-type", "application/json")
+                   .POST(HttpRequest.BodyPublishers.ofString(requestBodyString)).build()
+           val responseSendMessage: HttpResponse<String> =
+               client.send(requestSendMessage, HttpResponse.BodyHandlers.ofString())
+           return responseSendMessage.body()
+       }catch (e: Exception){
+           println(e.message    )
+       }
+        return null
     }
 
     fun sendQuestion(json: Json, chatId: Long?, question: Question): String? {
@@ -133,12 +146,17 @@ class TelegramBotService(private val botToken: String) {
 
         val requestBodyString = json.encodeToString(requestBody)
 
-        val requestSendMessage: HttpRequest =
-            HttpRequest.newBuilder().uri(URI.create(urlSendMessage)).header("Content-type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(requestBodyString)).build()
-        val responseSendMessage: HttpResponse<String> =
-            client.send(requestSendMessage, HttpResponse.BodyHandlers.ofString())
-        return responseSendMessage.body()
+        try {
+            val requestSendMessage: HttpRequest =
+                HttpRequest.newBuilder().uri(URI.create(urlSendMessage)).header("Content-type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBodyString)).build()
+            val responseSendMessage: HttpResponse<String> =
+                client.send(requestSendMessage, HttpResponse.BodyHandlers.ofString())
+            return responseSendMessage.body()
+        }catch (e: Exception){
+            println(e.message)
+        }
+        return null
     }
 }
 
