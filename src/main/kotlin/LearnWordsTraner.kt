@@ -1,6 +1,7 @@
 import java.io.File
+import kotlin.math.roundToInt
 
-const val PERCENT_MULTIPLIER = 100
+const val PERCENT_MULTIPLIER = 100.0
 
 data class Word(
     val word: String,
@@ -20,37 +21,39 @@ data class Question(
 )
 
 class LearnWordsTrainer(
-    private val fileName: String = "words.txt",
-    private val correctAnswerLimit: Int = 3,
-    private val numberOfQuestionWords: Int = 4
+    chatId: Long,
+    private val numberOfQuestionWords: Int = 4,
 ) {
-
     var question: Question? = null
-        private set
-    private val dictionary = loadDictionary()
+    private val dictionary = DatabaseUserDictionary(chatId)
 
 
     fun getStatistics(): Statistics {
-        val totalCount = dictionary.size
-        val learnedCount = dictionary.filter { it.correctAnswersCount >= correctAnswerLimit }.count()
-        val percent = ((learnedCount.toDouble() / totalCount.toDouble()) * PERCENT_MULTIPLIER).toInt()
-        return Statistics(totalCount, learnedCount, percent)
+        val learnedWords = dictionary.getLearnedWords().size
+        val totalCount = dictionary.getSize()
+        val percent = if (totalCount > 0) {
+            (learnedWords.toDouble() / totalCount.toDouble() * PERCENT_MULTIPLIER).roundToInt()
+        } else {
+            0
+        }
+
+        return Statistics(totalCount , learnedWords, percent)
     }
 
     fun getNextQuestion(): Question? {
-
-        val notLearnedList = dictionary.filter { it.correctAnswersCount < correctAnswerLimit }
+        val notLearnedList = dictionary.getUnlearnedWords()
         if (notLearnedList.isEmpty()) return null
 
         val questionWords = if (notLearnedList.size < numberOfQuestionWords) {
-            val learnedList = dictionary.filter { it.correctAnswersCount > correctAnswerLimit }.shuffled()
-            notLearnedList.shuffled().take(numberOfQuestionWords) +
-                    learnedList.take(numberOfQuestionWords - notLearnedList.size)
+            val learnedList = dictionary.getLearnedWords()
+            notLearnedList.shuffled().take(numberOfQuestionWords) + learnedList.shuffled()
+                .take(numberOfQuestionWords - notLearnedList.size)
         } else {
             notLearnedList.shuffled().take(numberOfQuestionWords)
         }.shuffled()
 
         val correctAnswer = questionWords.random()
+
         question = Question(
             variants = questionWords,
             correctAnswer = correctAnswer,
@@ -62,43 +65,9 @@ class LearnWordsTrainer(
         return question?.let {
             val correctAnswerId = it.variants.indexOf(it.correctAnswer)
             if (correctAnswerId == userAnswerId) {
-                it.correctAnswer.correctAnswersCount++
-                saveDictionary()
+                dictionary.setCorrectAnswersCount(it.correctAnswer.word, it.correctAnswer.correctAnswersCount.plus(1))
                 true
-            } else {
-                false
-            }
+            } else false
         } ?: false
     }
-
-    private fun loadDictionary(): List<Word> {
-        try {
-            val wordsFile = File(fileName)
-            if (!wordsFile.exists()) {
-                File("words.txt").copyTo(wordsFile)
-            }
-            val dictionary: MutableList<Word> = mutableListOf()
-            val lines: List<String> = wordsFile.readLines()
-            for (line in lines) {
-                val line = line.split("|")
-                val word = Word(word = line[0], translate = line[1], correctAnswersCount = line[2].toIntOrNull() ?: 0)
-                dictionary.add(word)
-            }
-            return dictionary.toList()
-        } catch (e: IndexOutOfBoundsException) {
-            throw IllegalArgumentException("Некорректный файл")
-        }
-    }
-
-    private fun saveDictionary() {
-        val wordsFile: File = File(fileName)
-        val text = dictionary.joinToString(separator = "\n") { "${it.word}|${it.translate}|${it.correctAnswersCount}" }
-        wordsFile.writeText(text)
-    }
-
-    fun resetProgress() {
-        dictionary.forEach { it.correctAnswersCount = 0 }
-        saveDictionary()
-    }
 }
-

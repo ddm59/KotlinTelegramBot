@@ -14,8 +14,8 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    implementation("org.xerial:sqlite-jdbc:3.43.0.0")
 }
 
 tasks.test {
